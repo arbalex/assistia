@@ -1,5 +1,5 @@
 (function() {
-    const API_URL = "https://assistia-mo6i.onrender.com";
+    const API_URL = "http://127.0.0.1:5000";
     
     // Récupérer le client_id depuis l'URL du script
     const scripts = document.currentScript || 
@@ -351,14 +351,7 @@
         if (charCounter) {
             charCounter.textContent = "0 / 300";
         }
-
-
-
-
-
-
-
-
+        
         try {
             const response = await fetch(`${API_URL}/api/chat`, {
                 method: "POST",
@@ -377,12 +370,10 @@
         } catch (e) {
             addMessage("Erreur de connexion au serveur.", "bot");
         }
-
+        
         sendBtn.disabled = false;
         input.focus();
-
     }
-
 
     
     function addMessage(text, sender) {
