@@ -4,10 +4,20 @@ from flask_cors import CORS
 from openai import OpenAI
 from dotenv import load_dotenv
 
+
 load_dotenv()
+
 
 app = Flask(__name__)
 CORS(app)
+
+
+@app.route('/widget.js')
+def widget():
+    """Sert le widget JavaScript"""
+    with open('widget.js', 'r', encoding='utf-8') as f:
+        return f.read(), 200, {'Content-Type': 'application/javascript'}
+
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -37,9 +47,11 @@ def chat():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/health')
 def health():
     return jsonify({'status': 'ok'}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
