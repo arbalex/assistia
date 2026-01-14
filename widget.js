@@ -341,39 +341,36 @@
     
     // Envoi message
     async function sendMessage() {
-        const message = input.value.trim();
-        if (!message) return;
+    const input = document.getElementById('assistia-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Ajoute le message utilisateur
+    addMessage(message, 'user');
+    input.value = '';
+    
+    try {
+        const response = await fetch('https://assistia-mo6i.onrender.com/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        });
         
-        sendBtn.disabled = true;
-        
-        addMessage(message, "user");
-        input.value = "";
-        if (charCounter) {
-            charCounter.textContent = "0 / 300";
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        try {
-            const response = await fetch(`${API_URL}/api/chat`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: message,
-                    client_id: clientId
-                })
-            });
-            const data = await response.json();
-            if (data.error) {
-                addMessage("Erreur: " + data.error, "bot");
-            } else {
-                addMessage(data.response, "bot");
-            }
-        } catch (e) {
-            addMessage("Erreur de connexion au serveur.", "bot");
-        }
-        
-        sendBtn.disabled = false;
-        input.focus();
+        const data = await response.json();
+        addMessage(data.response, 'bot');
+    } catch (error) {
+        console.error('Error:', error);
+        addMessage('Erreur: ' + error.message, 'bot');
     }
+}
+
 
     
     function addMessage(text, sender) {
