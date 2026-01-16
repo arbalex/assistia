@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 VALID_API_KEYS = {
-    os.getenv('API_KEY_MONENTREPRISE'): {'name': 'Site', 'active': True},
+    os.getenv('API_KEY_SITE'): {'name': 'Site', 'active': True},
     os.getenv('API_KEY_DEV'): {'name': 'Local Dev', 'active': True},
 }
 
