@@ -6,6 +6,7 @@
                     document.scripts[document.scripts.length - 1];
     const params = new URLSearchParams(scripts.src.split('?')[1] || '');
     const clientId = params.get('client_id') || null;
+    let hasGreeted = false;
     
     // Injecter les styles
     const style = document.createElement('style');
@@ -311,8 +312,10 @@
     const input = popup.querySelector('.chatbot-input-area input');
     const sendBtn = popup.querySelector('.chatbot-input-area button');
     const closeBtn = popup.querySelector('.chatbot-close');
-    let hasGreeted = false;
     const charCounter = popup.querySelector('.chatbot-char-counter');
+
+    addMessage("Bonjour, je suis votre assistant virtuel. Comment puis-je vous aider ?",
+                    "bot");
 
     input.addEventListener("input", () => {
     const length = input.value.length;
@@ -323,57 +326,47 @@
     // Ouverture / fermeture
     btn.addEventListener('click', () => {
         popup.classList.toggle('show');
-        if (popup.classList.contains('show')) {
-            if (!hasGreeted) {
-                addMessage(
-                    "Bonjour, je suis votre assistant virtuel. Comment puis-je vous aider ?",
-                    "bot"
-                );
-                hasGreeted = true;
-            }
             input.focus();
-        }
     });
 
     closeBtn.addEventListener('click', () => {
         popup.classList.remove('show');
     });
+
     
     // Envoi message
     async function sendMessage() {
-        const message = input.value.trim();
-        if (!message) return;
+    const message = input.value.trim();
+    if (!message) return;
+    
+    sendBtn.disabled = true;
+    addMessage(message, "user");
+    input.value = "";
+    
+    try {
+        const response = await fetch(`${API_URL}/api/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", 'X-API-Key': clientId },
+            body: JSON.stringify({
+                message: message,
+                client_id: clientId
+            })
+        });
         
-        sendBtn.disabled = true;
+        const data = await response.json();
         
-        addMessage(message, "user");
-        input.value = "";
-        if (charCounter) {
-            charCounter.textContent = "0 / 300";
+        if (data.error) {
+            addMessage("Erreur: " + data.error, "bot");
+        } else {
+            addMessage(data.response, "bot");
         }
-        
-        try {
-            const response = await fetch(`${API_URL}/api/chat`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", 'X-API-Key': client_id },
-                body: JSON.stringify({
-                    message: message,
-                    client_id: clientId
-                })
-            });
-            const data = await response.json();
-            if (data.error) {
-                addMessage("Erreur: " + data.error, "bot");
-            } else {
-                addMessage(data.response, "bot");
-            }
-        } catch (e) {
-            addMessage("Erreur de connexion au serveur.", "bot");
-        }
-        
-        sendBtn.disabled = false;
-        input.focus();
+    } catch (e) {
+        addMessage("Erreur de connexion au serveur.", "bot");
     }
+    
+    sendBtn.disabled = false;
+    input.focus();
+}
 
     
     function addMessage(text, sender) {
