@@ -16,15 +16,16 @@ VALID_API_KEYS = {
 
 VALID_API_KEYS = {k: v for k, v in VALID_API_KEYS.items() if k is not None}
 
-def validate_api_key(api_key):
-    if not api_key or api_key not in VALID_API_KEYS:
+def validate_api_key(client_api_key):
+    if not client_api_key or client_api_key not in VALID_API_KEYS:
         return False, None
     
-    key_info = VALID_API_KEYS[api_key]
+    key_info = VALID_API_KEYS[client_api_key]
     if not key_info.get('active', False):
         return False, None
     
     return True, key_info
+
 
 @app.route('/widget.js')
 def widget():
@@ -34,12 +35,13 @@ def widget():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
-        api_key = request.headers.get('X-API-Key')
+        client_api_key = request.headers.get('X-API-Key')
+        print(client_api_key)
         
-        if not api_key:
+        if not client_api_key:
             return jsonify({'error': 'Missing API key'}), 401
         
-        is_valid, key_info = validate_api_key(api_key)
+        is_valid, key_info = validate_api_key(client_api_key)
         
         if not is_valid:
             return jsonify({'error': 'Invalid API key'}), 401
@@ -48,6 +50,7 @@ def chat():
         print(f"Request from: {client_name}")
         
         openai_api_key = os.getenv('OPENAI_API_KEY')
+
         if not openai_api_key:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
 

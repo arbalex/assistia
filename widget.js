@@ -355,7 +355,7 @@
         try {
             const response = await fetch(`${API_URL}/api/chat`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", 'X-API-Key': client_id },
                 body: JSON.stringify({
                     message: message,
                     client_id: clientId
