@@ -5,7 +5,7 @@
     const scripts = document.currentScript || 
                     document.scripts[document.scripts.length - 1];
     const params = new URLSearchParams(scripts.src.split('?')[1] || '');
-    const clientId = params.get('client_id') || 'default';
+    const clientId = params.get('client_id') || null;
     
     // Injecter les styles
     const style = document.createElement('style');
